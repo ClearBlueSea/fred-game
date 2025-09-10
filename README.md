@@ -1,6 +1,3 @@
-Below is a descriptive `README.md` for the 'FRED: Ocean Cleanup' project, detailing the project's overall vision and the status of **Phase 1: Foundation & Core Loop**, which has just been completed.
-
-```markdown
 # FRED: Ocean Cleanup
 
 ## 🌊 FRED: Ocean Cleanup - An Educational Simulation Game
@@ -168,4 +165,3 @@ This project is licensed under the GNU General Public License. See the `LICENSE`
 
 *   Inspired by the critical issue of ocean plastic pollution and innovative robotic solutions.
 *   Leverages the fantastic Pygame community and documentation.
-```
