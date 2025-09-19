@@ -113,7 +113,7 @@ To run the 'FRED: Ocean Cleanup' project, follow these steps:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/fred-ocean-cleanup.git
+    git clone https://github.com/ClearBlueSea/fred-ocean-cleanup.git
     cd fred-ocean-cleanup
     ```
 2.  **Create and activate a virtual environment** using `uv`:
@@ -124,7 +124,7 @@ To run the 'FRED: Ocean Cleanup' project, follow these steps:
     ```
 3.  **Install dependencies** using `uv`:
     ```bash
-    uv pip install -e .
+    uv sync
     ```
     (This will install `pygame` and other necessary packages defined in `pyproject.toml`).
 
@@ -140,13 +140,19 @@ To run the 'FRED: Ocean Cleanup' project, follow these steps:
     python -m src
     ```
 
+### Running the development version
+
+```bash
+uv run python -m main
+```
+
 ---
 
 ## 🗺️ Development Roadmap (Next Phases)
 
 With Phase 1 complete, the project will move through these subsequent phases:
 
-*   **Phase 2: FRED Prototyping**: Implementing and tuning FRED's `Vector2`-based physics model and differential thrust control system.
+*   **Phase 2: FRED Prototyping**: Implementing and tuning FRED's `Vector2`-based physics model and differential thrust control system. **In Progress**
 *   **Phase 3: World & Interaction**: Introducing collectible trash and basic collision detection.
 *   **Phase 4: Camera & Environment**: Developing the scrolling camera and environmental physics like water drag and ocean currents.
 *   **Phase 5: UI & State Transitions**: Integrating `pygame-gui` to build out the main menu, HUD, and other UI elements.
