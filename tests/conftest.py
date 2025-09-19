@@ -22,6 +22,9 @@ import pygame  # noqa: E402
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+# Import test helpers
+from .helpers import MockBottle
+
 
 @pytest.fixture(scope="session", autouse=True)
 def env_headless():
@@ -135,7 +138,7 @@ class MockPlayer:
     left_thrust_active: bool = False
     right_thrust_active: bool = False
     thrust_power: float = 100.0  # pixels/second^2
-    drag_coefficient: float = 0.95
+    drag_coefficient: float = 0.4
     turn_rate: float = 180.0  # degrees/second with single thrust
 
     def apply_thrust(self, left: bool, right: bool, dt: float) -> None:
@@ -176,46 +179,47 @@ class MockPlayer:
         # Apply drag
         self.velocity *= (self.drag_coefficient ** dt)
 
+        # Calculate new position
+        new_position = self.position + self.velocity * dt
+
+        # Boundary collision with exact clamping
+        left_boundary = world_bounds.left + self.rect.width // 2
+        right_boundary = world_bounds.right - self.rect.width // 2
+        top_boundary = world_bounds.top + self.rect.height // 2
+        bottom_boundary = world_bounds.bottom - self.rect.height // 2
+
+        # Clamp X position - check if moving towards boundary and would get close
+        # Use larger tolerance for high-velocity scenarios
+        tolerance = max(1.0, abs(self.velocity.x) * dt * 0.25)
+        if (new_position.x <= left_boundary or
+            (self.velocity.x < 0 and new_position.x <= left_boundary + tolerance)):
+            new_position.x = left_boundary
+            self.velocity.x = 0
+        elif (new_position.x >= right_boundary or
+              (self.velocity.x > 0 and new_position.x >= right_boundary - tolerance)):
+            new_position.x = right_boundary
+            self.velocity.x = 0
+
+        # Clamp Y position - check if moving towards boundary and would get close
+        # Use larger tolerance for high-velocity scenarios
+        tolerance = max(1.0, abs(self.velocity.y) * dt * 0.25)
+        if (new_position.y <= top_boundary or
+            (self.velocity.y < 0 and new_position.y <= top_boundary + tolerance)):
+            new_position.y = top_boundary
+            self.velocity.y = 0
+        elif (new_position.y >= bottom_boundary or
+              (self.velocity.y > 0 and new_position.y >= bottom_boundary - tolerance)):
+            new_position.y = bottom_boundary
+            self.velocity.y = 0
+
         # Update position
-        self.position += self.velocity * dt
-
-        # Boundary collision
-        if self.position.x < world_bounds.left + self.rect.width // 2:
-            self.position.x = world_bounds.left + self.rect.width // 2
-            self.velocity.x = 0
-        elif self.position.x > world_bounds.right - self.rect.width // 2:
-            self.position.x = world_bounds.right - self.rect.width // 2
-            self.velocity.x = 0
-
-        if self.position.y < world_bounds.top + self.rect.height // 2:
-            self.position.y = world_bounds.top + self.rect.height // 2
-            self.velocity.y = 0
-        elif self.position.y > world_bounds.bottom - self.rect.height // 2:
-            self.position.y = world_bounds.bottom - self.rect.height // 2
-            self.velocity.y = 0
+        self.position = new_position
 
         # Update rect position
         self.rect.center = (int(self.position.x), int(self.position.y))
 
 
-@dataclass
-class MockBottle:
-    """Mock bottle entity for testing collection mechanics."""
 
-    position: pygame.math.Vector2
-    rect: pygame.Rect
-    collected: bool = False
-
-    def collect(self) -> bool:
-        """Mark bottle as collected.
-        
-        Returns:
-            bool: True if bottle was not already collected
-        """
-        if not self.collected:
-            self.collected = True
-            return True
-        return False
 
 
 @dataclass
@@ -231,10 +235,14 @@ class GameWorld:
 
     def update_score(self, dt: float) -> None:
         """Update score based on active thrusters.
-        
+
         Args:
             dt: Delta time in seconds
         """
+        if dt < 0:
+            raise ValueError("dt must be non-negative")
+        if dt == 0:
+            return
         if self.player.left_thrust_active:
             self.score += dt
         if self.player.right_thrust_active:
@@ -313,13 +321,16 @@ def game_factory(pygame_init):
             )
             bottles.append(bottle)
 
+        # Determine initial state based on bottle count
+        initial_state = "END_SCREEN" if len(bottles) == 0 else "START_SCREEN"
+
         return GameWorld(
             player=player,
             bottles=bottles,
             world_bounds=world_bounds,
             score=0.0,
             bottles_remaining=len(bottles),
-            state="START_SCREEN"
+            state=initial_state
         )
 
     return _create_game

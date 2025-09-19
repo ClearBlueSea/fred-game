@@ -3,6 +3,7 @@
 Tests score accumulation based on propeller usage and timing precision.
 """
 
+import pygame
 import pytest
 
 

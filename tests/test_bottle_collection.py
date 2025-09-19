@@ -275,7 +275,7 @@ class TestBottleProperties:
     def test_bottle_collect_method(self):
         """Test bottle's collect method behavior."""
         # Arrange
-        from conftest import MockBottle
+        from tests.helpers import MockBottle
         bottle = MockBottle(
             position=pygame.math.Vector2(100, 100),
             rect=pygame.Rect(90, 90, 20, 20)
