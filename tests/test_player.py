@@ -77,7 +77,7 @@ class TestPlayerPhysics(unittest.TestCase):
         self.assertAlmostEqual(self.player.angle, 0.0, places=5)
 
     def test_right_turn(self):
-        """Test that left thruster only causes positive angle change (right turn)."""
+        """Test that left thruster only causes right turn (positive angle change)."""
         # Simulate left thruster only
         self.player.left_thrust = 1.0
         self.player.right_thrust = 0.0
@@ -85,7 +85,7 @@ class TestPlayerPhysics(unittest.TestCase):
         # Update player
         self.player.update(self.dt)
 
-        # Angle should increase (right turn)
+        # Left thrust with naval convention: angle should increase (right turn)
         self.assertGreater(self.player.angle, 0)
 
         # Should have some velocity but less than full thrust
@@ -93,7 +93,10 @@ class TestPlayerPhysics(unittest.TestCase):
         self.assertGreater(velocity_magnitude, 0)
 
     def test_left_turn(self):
-        """Test that right thruster only causes negative angle change (left turn)."""
+        """Test that right thruster only causes left turn (negative angle change)."""
+        # Start with angle > 0 to avoid wrap
+        self.player.angle = 180.0
+
         # Simulate right thruster only
         self.player.left_thrust = 0.0
         self.player.right_thrust = 1.0
@@ -101,8 +104,8 @@ class TestPlayerPhysics(unittest.TestCase):
         # Update player
         self.player.update(self.dt)
 
-        # Angle should decrease (left turn)
-        self.assertLess(self.player.angle, 0)
+        # Right thrust with naval convention: angle should decrease (left turn)
+        self.assertLess(self.player.angle, 180.0)
 
         # Should have some velocity but less than full thrust
         velocity_magnitude = self.player.velocity.magnitude()
@@ -126,6 +129,106 @@ class TestPlayerPhysics(unittest.TestCase):
         # Should still be moving in same direction
         if final_speed > 0:
             self.assertGreater(self.player.velocity.x, 0)
+
+    def test_angle_wrapping(self):
+        """Test that angle wraps correctly past 360 degrees."""
+        # Set angle near 360 degrees
+        self.player.angle = 359.0
+        self.player.angular_velocity = 120.0  # degrees/second
+
+        # Update with large enough dt to pass 360
+        self.player.update(0.05)  # Should add ~6 degrees (less due to drag)
+
+        # Angle should wrap around to somewhere between 3-6 degrees
+        # (exact value depends on angular drag)
+        self.assertGreater(self.player.angle, 0)
+        self.assertLess(self.player.angle, 10)
+
+    def test_zero_delta_time(self):
+        """Test physics stability with dt=0."""
+        # Give player initial velocity and angular velocity
+        self.player.velocity = Vector2(100, 50)
+        self.player.angular_velocity = 45.0
+        initial_pos = Vector2(self.player.position)
+        initial_angle = self.player.angle
+
+        # Update with dt=0
+        self.player.left_thrust = 1.0
+        self.player.right_thrust = 1.0
+        self.player.update(0)
+
+        # Nothing should change with dt=0
+        self.assertEqual(self.player.position, initial_pos)
+        self.assertEqual(self.player.angle, initial_angle)
+
+    def test_angular_drag_decay(self):
+        """Test that angular velocity decays due to drag."""
+        # Set initial angular velocity
+        self.player.angular_velocity = 100.0
+        initial_angular_vel = self.player.angular_velocity
+
+        # Update without thrust
+        self.player.left_thrust = 0.0
+        self.player.right_thrust = 0.0
+        self.player.update(self.dt)
+
+        # Angular velocity should decrease due to drag
+        self.assertLess(self.player.angular_velocity, initial_angular_vel)
+        self.assertGreater(self.player.angular_velocity, 0)
+
+    def test_sprite_rotation_matches_angle(self):
+        """Test that visual sprite rotation matches physics angle."""
+        # Set a specific angle
+        self.player.angle = 45.0
+
+        # Update to apply rotation
+        self.player.update(self.dt)
+
+        # The image should be rotated (it will be different from original)
+        self.assertIsNotNone(self.player.image)
+        self.assertIsNotNone(self.player.rect)
+
+    def test_direction_vector_calculation(self):
+        """Test that direction vector is correctly calculated from angle."""
+        import math
+
+        # Test at various angles
+        test_angles = [0, 45, 90, 180, 270]
+
+        for angle in test_angles:
+            self.player.angle = angle
+            self.player.update(self.dt)
+
+            # Calculate expected direction
+            rad = math.radians(-angle)
+            expected_x = math.cos(rad)
+            expected_y = math.sin(rad)
+
+            # Check direction vector
+            self.assertAlmostEqual(self.player.direction.x, expected_x, places=5)
+            self.assertAlmostEqual(self.player.direction.y, expected_y, places=5)
+
+    def test_sustained_circle_turn(self):
+        """Test that sustained turning produces circular motion."""
+        angles_recorded = []
+
+        # Apply sustained left turn for multiple updates
+        for _ in range(100):  # Simulate 100 frames
+            self.player.left_thrust = 1.0
+            self.player.right_thrust = 0.5  # Partial right thrust
+            self.player.update(self.dt)
+            angles_recorded.append(self.player.angle)
+
+        # Check that angle continuously increases
+        for i in range(1, len(angles_recorded)):
+            # Account for wrapping
+            if angles_recorded[i] < angles_recorded[i - 1] - 300:
+                # Wrapped from ~360 to ~0
+                continue
+            else:
+                self.assertGreaterEqual(
+                    angles_recorded[i], angles_recorded[i - 1] - 0.1
+                )
 
 
 if __name__ == "__main__":

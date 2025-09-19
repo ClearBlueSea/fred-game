@@ -73,18 +73,22 @@ class Player(pygame.sprite.Sprite):
 
         # 2. Calculate total thrust and torque
         total_thrust = (self.left_thrust + self.right_thrust) * self.max_thrust
+        # Naval convention: left thrust causes right turn (positive angle)
+        # right thrust causes left turn (negative angle)
         torque = (self.left_thrust - self.right_thrust) * self.max_torque
 
-        # 3. Angular Physics
+        # 3. Direction Vector (calculate BEFORE updating angle)
+        self.direction = Vector2(1, 0).rotate(-self.angle)
+
+        # 4. Angular Physics
         # Apply angular drag
         self.angular_velocity *= 1 - self.angular_drag * dt
         # Add torque effect
         self.angular_velocity += torque * dt / self.mass
         # Update angle
         self.angle += self.angular_velocity * dt
-
-        # 4. Direction Vector
-        self.direction = Vector2(1, 0).rotate(-self.angle)
+        # Wrap angle to prevent unbounded growth
+        self.angle %= 360
 
         # 5. Linear Physics (Euler Integration)
         # Calculate thrust force
