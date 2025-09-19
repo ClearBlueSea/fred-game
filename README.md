@@ -1,3 +1,5 @@
+![CI Status](https://github.com/ClearBlueSea/fred-game/actions/workflows/ci.yml/badge.svg)
+
 # FRED: Ocean Cleanup
 
 ## 🌊 FRED: Ocean Cleanup - An Educational Simulation Game
