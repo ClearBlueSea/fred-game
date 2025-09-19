@@ -10,7 +10,7 @@ Install the development dependencies using `uv`:
 
 ```bash
 # Install dev dependencies (pytest, pytest-cov, pytest-randomly)
-uv add --dev pytest pytest-cov pytest-randomly
+uv sync --dev 
 ```
 
 ### Running Tests
