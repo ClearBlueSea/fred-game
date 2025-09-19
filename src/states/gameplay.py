@@ -19,6 +19,12 @@ class GameplayState(BaseState):
         """Initialize the gameplay when it becomes active."""
         super().startup(persistent_data, previous_state)
 
+        # Ensure pygame and font subsystem are initialized (safe in headless tests)
+        if not pygame.get_init():
+            pygame.init()
+        if not pygame.font.get_init():
+            pygame.font.init()
+
         # Initialize font and create text surface
         self.font = pygame.font.Font(None, 48)
         self.text_surface = self.font.render("Gameplay (Press ESC)", True, WHITE)
