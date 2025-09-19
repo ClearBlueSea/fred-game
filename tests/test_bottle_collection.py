@@ -190,7 +190,7 @@ class TestCollectionMechanics:
         game = game_factory(bottle_positions=positions)
 
         # Act - collect all bottles
-        for i, pos in enumerate(positions):
+        for _i, pos in enumerate(positions):
             game.player.position = pygame.math.Vector2(*pos)
             game.player.rect.center = pos
             game.check_collisions()

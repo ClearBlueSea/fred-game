@@ -25,10 +25,10 @@ def main():
     all_sprites = pygame.sprite.Group()
 
     # Create player
-    player = Player(PLAYER_START_POS, all_sprites)
+    Player(PLAYER_START_POS, all_sprites)
 
     # Create test bottle
-    test_bottle = Bottle((400, 200), all_sprites)
+    Bottle((400, 200), all_sprites)
 
     # Game loop
     running = True

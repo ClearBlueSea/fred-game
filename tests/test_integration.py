@@ -76,7 +76,7 @@ class TestControlledGameLoop:
 
         with time_controller.patch_pygame_time():
             # Execute sequence
-            for left, right, dt_ms, behavior in sequence:
+            for left, right, dt_ms, _behavior in sequence:
                 dt = dt_ms / 1000.0
 
                 # Apply inputs
@@ -409,7 +409,7 @@ class TestPropertyBasedScenarios:
         game = game_factory(bottle_positions=positions)
 
         # Play through game
-        for i, pos in enumerate(positions):
+        for _i, pos in enumerate(positions):
             # Count bottles
             collected = sum(1 for b in game.bottles if b.collected)
             remaining = game.bottles_remaining
@@ -437,14 +437,14 @@ class TestRefactoringRecommendations:
 
         recommendation = """
         REFACTORING NEEDED - src/game.py:
-        
+
         Current:
             self.clock = pygame.time.Clock()
-        
+
         Suggested:
             def __init__(self, clock=None):
                 self.clock = clock or pygame.time.Clock()
-        
+
         This allows injection of mock clocks during testing.
         """
         assert recommendation  # Document exists
@@ -456,15 +456,15 @@ class TestRefactoringRecommendations:
 
         recommendation = """
         REFACTORING NEEDED - Future bottle spawning:
-        
+
         Instead of:
             x = random.randint(50, world_width - 50)
-        
+
         Suggested:
             def spawn_bottles(self, rng=None):
                 rng = rng or random.Random()
                 x = rng.randint(50, self.world_width - 50)
-        
+
         This allows deterministic testing with seeded RNG.
         """
         assert recommendation  # Document exists
@@ -473,12 +473,12 @@ class TestRefactoringRecommendations:
         """Document state machine testing improvements."""
         recommendation = """
         REFACTORING NEEDED - State management:
-        
+
         Consider adding:
         1. State history tracking for testing transitions
         2. Event queue for programmatic event injection
         3. State data validation methods
-        
+
         This would enable more thorough state transition testing.
         """
         assert recommendation  # Document exists

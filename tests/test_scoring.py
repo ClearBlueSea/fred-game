@@ -236,7 +236,8 @@ class TestScoreEdgeCases:
         player.left_thrust_active = True
 
         # Act - This shouldn't happen in real game but test defensive programming
-        # Note: Current implementation doesn't handle this, but test documents expected behavior
+        # Note: Current implementation doesn't handle this, but test documents
+        # expected behavior
         with pytest.raises(Exception) or game.score >= 10.0:
             game.update_score(-1.0)
 

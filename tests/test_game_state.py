@@ -156,7 +156,6 @@ class TestUIDataIntegrity:
         game.check_collisions()
 
         initial_score = game.score
-        initial_remaining = game.bottles_remaining
 
         # Act - transition to END_SCREEN
         game.bottles_remaining = 0
@@ -240,7 +239,6 @@ class TestGameFlow:
         game.check_collisions()
 
         assert game.state == "END_SCREEN"
-        first_score = game.score
 
         # Act - restart game (would be triggered by user input)
         # This simulates what a restart would do
@@ -282,7 +280,6 @@ class TestStateImplementation:
 
         # Arrange
         state = MainMenuState()
-        mock_surface = MagicMock()
 
         # Act
         state.startup()
@@ -341,7 +338,6 @@ class TestStateImplementation:
             with patch("pygame.display.set_caption"):
                 # Arrange
                 game = Game()
-                initial_state = game.current_state_name
 
                 # Simulate state transition request
                 game.current_state.done = True
@@ -369,11 +365,6 @@ class TestUIRenderingData:
 
             # In real implementation, would test actual formatting
             # For now, document expected behavior
-            if score == int(score):
-                expected_display = str(int(score))
-            else:
-                expected_display = f"{score:.1f}"
-
             # Assert concept (actual implementation would render)
             assert isinstance(game.score, (int, float))
 
