@@ -29,7 +29,7 @@ from .helpers import MockBottle
 @pytest.fixture(scope="session", autouse=True)
 def env_headless():
     """Ensure SDL runs in headless mode for all tests.
-    
+
     This fixture is automatically used for all tests and sets the
     SDL_VIDEODRIVER to 'dummy' before any pygame imports.
     """
@@ -42,7 +42,7 @@ def env_headless():
 @pytest.fixture(scope="session")
 def pygame_init():
     """Initialize pygame once for the entire test session.
-    
+
     This fixture properly initializes pygame at the start of the test
     session and ensures proper cleanup with pygame.quit() at the end.
     """
@@ -55,13 +55,13 @@ def pygame_init():
 @pytest.fixture(params=[42, 1337, 2024])
 def rng_seed(request):
     """Parametrized fixture providing multiple RNG seeds for testing.
-    
+
     This fixture seeds the random module with different values to ensure
     test robustness across different random states.
-    
+
     Args:
         request: pytest request object containing the seed parameter
-        
+
     Returns:
         int: The seed value used for this test run
     """
@@ -73,7 +73,7 @@ def rng_seed(request):
 @dataclass
 class TimeController:
     """Mock time controller for deterministic time-based testing.
-    
+
     Provides methods to control and advance mock time for testing
     time-dependent game logic.
     """
@@ -82,7 +82,7 @@ class TimeController:
 
     def now(self) -> float:
         """Get current mock time in milliseconds.
-        
+
         Returns:
             float: Current time in milliseconds
         """
@@ -90,7 +90,7 @@ class TimeController:
 
     def advance(self, milliseconds: float) -> None:
         """Advance the mock clock by specified milliseconds.
-        
+
         Args:
             milliseconds: Amount to advance the clock
         """
@@ -103,7 +103,7 @@ class TimeController:
     @contextmanager
     def patch_pygame_time(self):
         """Context manager to patch pygame.time functions.
-        
+
         Yields:
             TimeController: This controller instance
         """
@@ -117,7 +117,7 @@ class TimeController:
 @pytest.fixture
 def time_controller():
     """Create a time controller for mocking time in tests.
-    
+
     Returns:
         TimeController: Controller for manipulating mock time
     """
@@ -127,7 +127,7 @@ def time_controller():
 @dataclass
 class MockPlayer:
     """Mock player entity for testing.
-    
+
     Represents FRED with position, velocity, angle, and thrust control.
     """
 
@@ -143,7 +143,7 @@ class MockPlayer:
 
     def apply_thrust(self, left: bool, right: bool, dt: float) -> None:
         """Apply differential thrust physics.
-        
+
         Args:
             left: Whether left propeller is active
             right: Whether right propeller is active
@@ -160,24 +160,28 @@ class MockPlayer:
             # Left thruster only: turn right
             self.angle += self.turn_rate * dt
             # Small forward component
-            acceleration = pygame.math.Vector2(0, -self.thrust_power * 0.3).rotate(self.angle)
+            acceleration = pygame.math.Vector2(0, -self.thrust_power * 0.3).rotate(
+                self.angle
+            )
             self.velocity += acceleration * dt
         elif right:
             # Right thruster only: turn left
             self.angle -= self.turn_rate * dt
             # Small forward component
-            acceleration = pygame.math.Vector2(0, -self.thrust_power * 0.3).rotate(self.angle)
+            acceleration = pygame.math.Vector2(0, -self.thrust_power * 0.3).rotate(
+                self.angle
+            )
             self.velocity += acceleration * dt
 
     def update(self, dt: float, world_bounds: pygame.Rect) -> None:
         """Update player position with physics.
-        
+
         Args:
             dt: Delta time in seconds
             world_bounds: Rectangle defining world boundaries
         """
         # Apply drag
-        self.velocity *= (self.drag_coefficient ** dt)
+        self.velocity *= self.drag_coefficient**dt
 
         # Calculate new position
         new_position = self.position + self.velocity * dt
@@ -191,24 +195,28 @@ class MockPlayer:
         # Clamp X position - check if moving towards boundary and would get close
         # Use larger tolerance for high-velocity scenarios
         tolerance = max(1.0, abs(self.velocity.x) * dt * 0.25)
-        if (new_position.x <= left_boundary or
-            (self.velocity.x < 0 and new_position.x <= left_boundary + tolerance)):
+        if new_position.x <= left_boundary or (
+            self.velocity.x < 0 and new_position.x <= left_boundary + tolerance
+        ):
             new_position.x = left_boundary
             self.velocity.x = 0
-        elif (new_position.x >= right_boundary or
-              (self.velocity.x > 0 and new_position.x >= right_boundary - tolerance)):
+        elif new_position.x >= right_boundary or (
+            self.velocity.x > 0 and new_position.x >= right_boundary - tolerance
+        ):
             new_position.x = right_boundary
             self.velocity.x = 0
 
         # Clamp Y position - check if moving towards boundary and would get close
         # Use larger tolerance for high-velocity scenarios
         tolerance = max(1.0, abs(self.velocity.y) * dt * 0.25)
-        if (new_position.y <= top_boundary or
-            (self.velocity.y < 0 and new_position.y <= top_boundary + tolerance)):
+        if new_position.y <= top_boundary or (
+            self.velocity.y < 0 and new_position.y <= top_boundary + tolerance
+        ):
             new_position.y = top_boundary
             self.velocity.y = 0
-        elif (new_position.y >= bottom_boundary or
-              (self.velocity.y > 0 and new_position.y >= bottom_boundary - tolerance)):
+        elif new_position.y >= bottom_boundary or (
+            self.velocity.y > 0 and new_position.y >= bottom_boundary - tolerance
+        ):
             new_position.y = bottom_boundary
             self.velocity.y = 0
 
@@ -217,9 +225,6 @@ class MockPlayer:
 
         # Update rect position
         self.rect.center = (int(self.position.x), int(self.position.y))
-
-
-
 
 
 @dataclass
@@ -261,29 +266,30 @@ class GameWorld:
 @pytest.fixture
 def game_factory(pygame_init):
     """Factory fixture for creating test game worlds.
-    
+
     Args:
         pygame_init: Ensures pygame is initialized
-        
+
     Returns:
         callable: Factory function for creating game worlds
     """
+
     def _create_game(
         world_size: tuple[int, int] = (800, 600),
         player_pos: tuple[float, float] | None = None,
         player_angle: float = 0.0,
         bottle_positions: list[tuple[float, float]] | None = None,
-        seed: int | None = None
+        seed: int | None = None,
     ) -> GameWorld:
         """Create a game world for testing.
-        
+
         Args:
             world_size: Width and height of the world
             player_pos: Initial player position (defaults to center)
             player_angle: Initial player angle in degrees
             bottle_positions: List of bottle positions (defaults to random)
             seed: Random seed for bottle placement
-            
+
         Returns:
             GameWorld: Configured game world for testing
         """
@@ -300,7 +306,7 @@ def game_factory(pygame_init):
             position=pygame.math.Vector2(*player_pos),
             velocity=pygame.math.Vector2(0, 0),
             angle=player_angle,
-            rect=pygame.Rect(0, 0, 40, 60)  # Catamaran size
+            rect=pygame.Rect(0, 0, 40, 60),  # Catamaran size
         )
         player.rect.center = player_pos
 
@@ -317,7 +323,7 @@ def game_factory(pygame_init):
         for pos in bottle_positions:
             bottle = MockBottle(
                 position=pygame.math.Vector2(*pos),
-                rect=pygame.Rect(pos[0] - 10, pos[1] - 10, 20, 20)
+                rect=pygame.Rect(pos[0] - 10, pos[1] - 10, 20, 20),
             )
             bottles.append(bottle)
 
@@ -330,7 +336,7 @@ def game_factory(pygame_init):
             world_bounds=world_bounds,
             score=0.0,
             bottles_remaining=len(bottles),
-            state=initial_state
+            state=initial_state,
         )
 
     return _create_game
@@ -339,15 +345,12 @@ def game_factory(pygame_init):
 @pytest.fixture
 def mock_game_class():
     """Fixture providing a mock Game class for testing state transitions.
-    
+
     Returns:
         MagicMock: Mock game class with state management
     """
     mock_game = MagicMock()
-    mock_game.states = {
-        "MENU": MagicMock(),
-        "GAMEPLAY": MagicMock()
-    }
+    mock_game.states = {"MENU": MagicMock(), "GAMEPLAY": MagicMock()}
     mock_game.current_state_name = "MENU"
     mock_game.current_state = mock_game.states["MENU"]
     mock_game.running = True
@@ -358,9 +361,11 @@ def mock_game_class():
 
 
 # Testing utilities
-def assert_vector_equal(v1: pygame.math.Vector2, v2: pygame.math.Vector2, tolerance: float = 0.01):
+def assert_vector_equal(
+    v1: pygame.math.Vector2, v2: pygame.math.Vector2, tolerance: float = 0.01
+):
     """Assert two vectors are approximately equal.
-    
+
     Args:
         v1: First vector
         v2: Second vector
@@ -372,7 +377,7 @@ def assert_vector_equal(v1: pygame.math.Vector2, v2: pygame.math.Vector2, tolera
 
 def assert_angle_equal(a1: float, a2: float, tolerance: float = 0.1):
     """Assert two angles are approximately equal.
-    
+
     Args:
         a1: First angle in degrees
         a2: Second angle in degrees

@@ -3,7 +3,6 @@
 Tests deterministic spawning, collection mechanics, and game completion.
 """
 
-
 import pygame
 import pytest
 
@@ -33,8 +32,10 @@ class TestBottleSpawning:
         # Assert - at least some bottles should be in different positions
         positions_match = 0
         for bottle1, bottle2 in zip(game1.bottles, game2.bottles, strict=False):
-            if (bottle1.position.x == bottle2.position.x and
-                bottle1.position.y == bottle2.position.y):
+            if (
+                bottle1.position.x == bottle2.position.x
+                and bottle1.position.y == bottle2.position.y
+            ):
                 positions_match += 1
 
         # Very unlikely all bottles are in same position with different seeds
@@ -89,7 +90,7 @@ class TestCollectionMechanics:
         bottle_pos = (100, 100)
         game = game_factory(
             player_pos=(100, 100),  # Same position as bottle
-            bottle_positions=[bottle_pos]
+            bottle_positions=[bottle_pos],
         )
 
         # Act
@@ -121,10 +122,7 @@ class TestCollectionMechanics:
     def test_no_double_collection(self, game_factory):
         """Verify collected bottle cannot be collected again."""
         # Arrange
-        game = game_factory(
-            player_pos=(100, 100),
-            bottle_positions=[(100, 100)]
-        )
+        game = game_factory(player_pos=(100, 100), bottle_positions=[(100, 100)])
 
         # First collection
         game.check_collisions()
@@ -157,7 +155,7 @@ class TestCollectionMechanics:
         # Arrange
         game = game_factory(
             player_pos=(100, 100),
-            bottle_positions=[(150, 150)]  # Close but not overlapping
+            bottle_positions=[(150, 150)],  # Close but not overlapping
         )
 
         # Act
@@ -173,7 +171,7 @@ class TestCollectionMechanics:
         # Arrange
         game = game_factory(
             player_pos=(100, 100),
-            bottle_positions=[(100, 100)]  # Single bottle
+            bottle_positions=[(100, 100)],  # Single bottle
         )
         assert game.state == "START_SCREEN"
 
@@ -223,10 +221,10 @@ class TestCollectionEdgeCases:
         # Arrange
         world_size = (800, 600)
         edge_positions = [
-            (20, 300),      # Near left edge
-            (780, 300),     # Near right edge
-            (400, 20),      # Near top edge
-            (400, 580),     # Near bottom edge
+            (20, 300),  # Near left edge
+            (780, 300),  # Near right edge
+            (400, 20),  # Near top edge
+            (400, 580),  # Near bottom edge
         ]
         game = game_factory(world_size=world_size, bottle_positions=edge_positions)
 
@@ -276,9 +274,9 @@ class TestBottleProperties:
         """Test bottle's collect method behavior."""
         # Arrange
         from tests.helpers import MockBottle
+
         bottle = MockBottle(
-            position=pygame.math.Vector2(100, 100),
-            rect=pygame.Rect(90, 90, 20, 20)
+            position=pygame.math.Vector2(100, 100), rect=pygame.Rect(90, 90, 20, 20)
         )
 
         # Act & Assert
@@ -299,12 +297,14 @@ class TestBottleSpawningPatterns:
 
         # Act & Assert
         for i, bottle1 in enumerate(game.bottles):
-            for bottle2 in game.bottles[i+1:]:
+            for bottle2 in game.bottles[i + 1 :]:
                 distance = bottle1.position.distance_to(bottle2.position)
                 # This may not be enforced in basic implementation
                 # Document expected behavior
                 if distance < min_distance:
-                    pytest.skip("Minimum spacing not enforced in current implementation")
+                    pytest.skip(
+                        "Minimum spacing not enforced in current implementation"
+                    )
 
     def test_bottle_distribution_across_world(self, game_factory):
         """Test that bottles are reasonably distributed across the world."""
@@ -313,12 +313,7 @@ class TestBottleSpawningPatterns:
         game = game_factory(world_size=world_size, seed=42, bottle_positions=None)
 
         # Divide world into quadrants
-        quadrants = {
-            "top_left": 0,
-            "top_right": 0,
-            "bottom_left": 0,
-            "bottom_right": 0
-        }
+        quadrants = {"top_left": 0, "top_right": 0, "bottom_left": 0, "bottom_right": 0}
 
         # Count bottles in each quadrant
         for bottle in game.bottles:
@@ -335,4 +330,6 @@ class TestBottleSpawningPatterns:
 
         # Assert - no quadrant should be completely empty (for 5+ bottles)
         if len(game.bottles) >= 5:
-            assert all(count > 0 for count in quadrants.values()) or pytest.skip("Distribution not enforced")
+            assert all(count > 0 for count in quadrants.values()) or pytest.skip(
+                "Distribution not enforced"
+            )

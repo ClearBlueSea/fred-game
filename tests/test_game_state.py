@@ -64,12 +64,15 @@ class TestStateTransitions:
         assert game.bottles_remaining == 1
         assert game.state == "PLAYING"  # Should still be playing
 
-    @pytest.mark.parametrize("initial_state,expected_valid", [
-        ("START_SCREEN", True),
-        ("PLAYING", True),
-        ("END_SCREEN", True),
-        ("INVALID_STATE", False),
-    ])
+    @pytest.mark.parametrize(
+        "initial_state,expected_valid",
+        [
+            ("START_SCREEN", True),
+            ("PLAYING", True),
+            ("END_SCREEN", True),
+            ("INVALID_STATE", False),
+        ],
+    )
     def test_valid_state_values(self, game_factory, initial_state, expected_valid):
         """Test that only valid state values are accepted."""
         # Arrange
@@ -257,10 +260,7 @@ class TestGameFlow:
     def test_quick_completion(self, game_factory):
         """Test very quick game completion."""
         # Arrange - single bottle at player start position
-        game = game_factory(
-            player_pos=(400, 300),
-            bottle_positions=[(400, 300)]
-        )
+        game = game_factory(player_pos=(400, 300), bottle_positions=[(400, 300)])
 
         # Act
         game.state = "PLAYING"
@@ -337,8 +337,8 @@ class TestStateImplementation:
         """Test Game class handles state transitions."""
         from src.game import Game
 
-        with patch('pygame.display.set_mode'):
-            with patch('pygame.display.set_caption'):
+        with patch("pygame.display.set_mode"):
+            with patch("pygame.display.set_caption"):
                 # Arrange
                 game = Game()
                 initial_state = game.current_state_name

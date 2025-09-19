@@ -47,7 +47,9 @@ class TestControlledGameLoop:
             time_controller.advance(16)
 
             # Assert after tick 3
-            assert player.velocity.length() < player.thrust_power * dt * 2  # Slowing down
+            assert (
+                player.velocity.length() < player.thrust_power * dt * 2
+            )  # Slowing down
             # Score shouldn't increase during coast
             final_score = game.score
             assert pytest.approx(final_score, abs=0.01) == dt * 3  # 1 + 2 + 0
@@ -91,7 +93,9 @@ class TestControlledGameLoop:
         # Assert behavioral patterns
         assert angles[0] > 0  # First tick turned right
         assert angles[1] < angles[0]  # Second tick turned left
-        assert positions[2].distance_to(positions[1]) > positions[3].distance_to(positions[2])  # Deceleration during coast
+        assert positions[2].distance_to(positions[1]) > positions[3].distance_to(
+            positions[2]
+        )  # Deceleration during coast
         assert scores[3] == scores[2]  # No score during coast
 
     @pytest.mark.parametrize("dt_ms", [5, 16, 33, 100])
@@ -121,8 +125,8 @@ class TestControlledGameLoop:
             assert player.velocity.length() < 500
 
             # No NaN or infinity values
-            assert player.position.x != float('inf')
-            assert player.position.y != float('inf')
+            assert player.position.x != float("inf")
+            assert player.position.y != float("inf")
 
 
 @pytest.mark.timeout(20)  # 20 second timeout for complex scenarios
@@ -142,10 +146,7 @@ class TestComplexGameScenarios:
             (350, 250),  # More up
         ]
 
-        game = game_factory(
-            player_pos=(400, 300),
-            bottle_positions=spiral_positions
-        )
+        game = game_factory(player_pos=(400, 300), bottle_positions=spiral_positions)
 
         with time_controller.patch_pygame_time():
             game.state = "PLAYING"
@@ -159,7 +160,10 @@ class TestComplexGameScenarios:
                 # Simple navigation: turn towards target and thrust
                 moves = 0
                 max_moves = 150  # Increased limit for safety
-                while game.player.position.distance_to(pygame.math.Vector2(*target_pos)) > 30:
+                while (
+                    game.player.position.distance_to(pygame.math.Vector2(*target_pos))
+                    > 30
+                ):
                     moves += 1
                     if moves > max_moves:  # Prevent infinite loop
                         break
@@ -188,7 +192,7 @@ class TestComplexGameScenarios:
         game = game_factory(
             world_size=(800, 600),
             player_pos=(400, 300),
-            bottle_positions=[(50, 300), (750, 300), (400, 50), (400, 550)]
+            bottle_positions=[(50, 300), (750, 300), (400, 50), (400, 550)],
         )
 
         game.state = "PLAYING"
@@ -266,7 +270,11 @@ class TestFullGameSimulation:
 
             iterations = 0
             max_iterations = 600  # 600 * 16ms = ~10 seconds
-            while game.bottles_remaining > 0 and elapsed < 10 and iterations < max_iterations:
+            while (
+                game.bottles_remaining > 0
+                and elapsed < 10
+                and iterations < max_iterations
+            ):
                 iterations += 1
 
                 # Apply forward thrust
@@ -293,8 +301,7 @@ class TestFullGameSimulation:
 
         # Efficient strategy - direct movement
         efficient_game = game_factory(
-            player_pos=(200, 300),
-            bottle_positions=bottle_positions
+            player_pos=(200, 300), bottle_positions=bottle_positions
         )
 
         with time_controller.patch_pygame_time():
@@ -313,8 +320,7 @@ class TestFullGameSimulation:
         # Inefficient strategy - lots of turning
         time_controller.reset()
         inefficient_game = game_factory(
-            player_pos=(200, 300),
-            bottle_positions=bottle_positions
+            player_pos=(200, 300), bottle_positions=bottle_positions
         )
 
         with time_controller.patch_pygame_time():
@@ -323,7 +329,9 @@ class TestFullGameSimulation:
             # Waste time spinning - using thrust which increases score
             for _ in range(100):  # Lots of spinning
                 inefficient_game.player.apply_thrust(left=True, right=False, dt=0.016)
-                inefficient_game.player.update(dt=0.016, world_bounds=inefficient_game.world_bounds)
+                inefficient_game.player.update(
+                    dt=0.016, world_bounds=inefficient_game.world_bounds
+                )
                 inefficient_game.update_score(0.016)
                 time_controller.advance(16)
 
@@ -349,6 +357,7 @@ class TestPropertyBasedScenarios:
         """Property: Player position never exceeds world boundaries."""
         # Arrange
         import random
+
         random.seed(seed)
 
         world_size = (1000, 800)
@@ -378,6 +387,7 @@ class TestPropertyBasedScenarios:
 
         # Random gameplay sequence
         import random
+
         for _ in range(50):
             # Random thrust
             player.left_thrust_active = random.choice([True, False])

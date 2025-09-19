@@ -8,7 +8,7 @@ class Bottle(pygame.sprite.Sprite):
 
     def __init__(self, pos, groups):
         """Initialize the bottle sprite.
-        
+
         Args:
             pos: Position tuple (x, y) for the bottle
             groups: Sprite groups to add this bottle to

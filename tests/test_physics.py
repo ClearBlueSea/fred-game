@@ -29,7 +29,9 @@ class TestDifferentialThrust:
 
         # Should have some forward velocity from turning thrust
         assert player.velocity.length() > 0
-        assert player.velocity.length() < player.thrust_power * dt  # Less than full thrust
+        assert (
+            player.velocity.length() < player.thrust_power * dt
+        )  # Less than full thrust
 
     def test_right_thrust_only_turns_left(self, game_factory, time_controller):
         """Verify that right thrust only causes a left turn."""
@@ -66,7 +68,9 @@ class TestDifferentialThrust:
         assert_angle_equal(player.angle, initial_angle, tolerance=0.01)
 
         # Velocity should be in the direction of the angle
-        expected_velocity = pygame.math.Vector2(0, -player.thrust_power * dt).rotate(initial_angle)
+        expected_velocity = pygame.math.Vector2(0, -player.thrust_power * dt).rotate(
+            initial_angle
+        )
         assert_vector_equal(player.velocity, expected_velocity, tolerance=1.0)
 
     @pytest.mark.parametrize("angle", [0, 45, 90, 180, 270])
@@ -83,7 +87,11 @@ class TestDifferentialThrust:
         # Assert
         # Velocity should be in the direction of player angle
         expected_direction = pygame.math.Vector2(0, -1).rotate(angle)
-        actual_direction = player.velocity.normalize() if player.velocity.length() > 0 else pygame.math.Vector2(0, 0)
+        actual_direction = (
+            player.velocity.normalize()
+            if player.velocity.length() > 0
+            else pygame.math.Vector2(0, 0)
+        )
 
         if player.velocity.length() > 0:
             dot_product = expected_direction.dot(actual_direction)
@@ -111,7 +119,9 @@ class TestMomentumAndDrag:
 
         # Assert - velocity should monotonically decrease
         for i in range(1, len(velocities)):
-            assert velocities[i] < velocities[i-1], f"Velocity did not decrease at step {i}"
+            assert velocities[i] < velocities[i - 1], (
+                f"Velocity did not decrease at step {i}"
+            )
 
         # Should approach zero but not quite reach it due to drag formula
         assert velocities[-1] < initial_velocity * 0.5
@@ -131,7 +141,7 @@ class TestMomentumAndDrag:
         player.update(dt=dt, world_bounds=game.world_bounds)
 
         # Assert
-        expected_velocity = 100 * (player.drag_coefficient ** dt)
+        expected_velocity = 100 * (player.drag_coefficient**dt)
         assert pytest.approx(player.velocity.x, abs=0.1) == expected_velocity
 
     def test_momentum_conservation_during_turn(self, game_factory):
@@ -237,13 +247,18 @@ class TestBoundaryCollisions:
         assert player.velocity.x == 0  # Horizontal velocity stopped
         assert player.velocity.y == 0  # Vertical velocity stopped
 
-    @pytest.mark.parametrize("start_pos,velocity,expected_clamped", [
-        ((50, 300), (-200, 0), (True, False)),   # Left wall
-        ((750, 300), (200, 0), (True, False)),    # Right wall
-        ((400, 50), (0, -200), (False, True)),    # Top wall
-        ((400, 550), (0, 200), (False, True)),    # Bottom wall
-    ])
-    def test_boundary_clamping(self, game_factory, start_pos, velocity, expected_clamped):
+    @pytest.mark.parametrize(
+        "start_pos,velocity,expected_clamped",
+        [
+            ((50, 300), (-200, 0), (True, False)),  # Left wall
+            ((750, 300), (200, 0), (True, False)),  # Right wall
+            ((400, 50), (0, -200), (False, True)),  # Top wall
+            ((400, 550), (0, 200), (False, True)),  # Bottom wall
+        ],
+    )
+    def test_boundary_clamping(
+        self, game_factory, start_pos, velocity, expected_clamped
+    ):
         """Parametrized test for boundary clamping behavior."""
         # Arrange
         game = game_factory(world_size=(800, 600))
@@ -281,7 +296,9 @@ class TestPhysicsStability:
         assert 0 <= player.position.x <= 1000
         assert 0 <= player.position.y <= 1000
         assert player.velocity.length() < 1000  # Reasonable max speed
-        assert not pygame.math.Vector2(player.position.x, player.position.y).length() == float('inf')
+        assert not pygame.math.Vector2(
+            player.position.x, player.position.y
+        ).length() == float("inf")
 
     def test_no_tunneling_at_high_speed(self, game_factory):
         """Verify no tunneling through boundaries at high speeds."""

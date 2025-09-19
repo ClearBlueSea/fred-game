@@ -68,7 +68,7 @@ class Player(pygame.sprite.Sprite):
             dt: Delta time in seconds
         """
         # 1. Get input (only if not manually controlled)
-        if not hasattr(self, '_manual_control'):
+        if not hasattr(self, "_manual_control"):
             self.get_input()
 
         # 2. Calculate total thrust and torque
@@ -77,7 +77,7 @@ class Player(pygame.sprite.Sprite):
 
         # 3. Angular Physics
         # Apply angular drag
-        self.angular_velocity *= (1 - self.angular_drag * dt)
+        self.angular_velocity *= 1 - self.angular_drag * dt
         # Add torque effect
         self.angular_velocity += torque * dt / self.mass
         # Update angle
@@ -90,7 +90,9 @@ class Player(pygame.sprite.Sprite):
         # Calculate thrust force
         thrust_force = self.direction * total_thrust
         # Calculate drag force
-        drag_force = -self.velocity * self.velocity.magnitude() * self.linear_drag_coefficient
+        drag_force = (
+            -self.velocity * self.velocity.magnitude() * self.linear_drag_coefficient
+        )
         # Calculate total force
         total_force = thrust_force + drag_force
         # Update acceleration

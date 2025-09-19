@@ -157,10 +157,10 @@ class TestTimingPrecision:
 
         # Test various fractional times
         test_cases = [
-            (0.001, 1, 0.001),    # 1ms single thrust
-            (0.016, 2, 0.032),    # 16ms both thrust (typical frame)
-            (0.333, 1, 0.333),    # 1/3 second single
-            (0.123, 2, 0.246),    # Arbitrary fraction both
+            (0.001, 1, 0.001),  # 1ms single thrust
+            (0.016, 2, 0.032),  # 16ms both thrust (typical frame)
+            (0.333, 1, 0.333),  # 1/3 second single
+            (0.123, 2, 0.246),  # Arbitrary fraction both
         ]
 
         for dt, num_thrusters, expected in test_cases:
@@ -169,7 +169,7 @@ class TestTimingPrecision:
 
             # Act
             player.left_thrust_active = True
-            player.right_thrust_active = (num_thrusters == 2)
+            player.right_thrust_active = num_thrusters == 2
             game.update_score(dt)
 
             # Assert

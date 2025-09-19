@@ -18,7 +18,7 @@ class MockBottle:
 
     def collect(self) -> bool:
         """Mark bottle as collected.
-        
+
         Returns:
             bool: True if bottle was not already collected
         """
