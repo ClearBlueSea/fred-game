@@ -1,11 +1,12 @@
 """Main game application for FRED: Ocean Cleanup."""
 
-import pygame
 import sys
 
-from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, PLAYER_START_POS
-from src.entities.player import Player
+import pygame
+
 from src.entities.bottle import Bottle
+from src.entities.player import Player
+from src.settings import FPS, PLAYER_START_POS, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 def main():

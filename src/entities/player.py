@@ -4,8 +4,11 @@ import pygame
 from pygame.math import Vector2
 
 from ..settings import (
-    MAX_THRUST, MAX_TORQUE, LINEAR_DRAG_COEFFICIENT,
-    ANGULAR_DRAG, MASS
+    ANGULAR_DRAG,
+    LINEAR_DRAG_COEFFICIENT,
+    MASS,
+    MAX_THRUST,
+    MAX_TORQUE,
 )
 
 
