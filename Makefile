@@ -8,3 +8,6 @@ test-verbose:
 
 test-watch:
 		SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy pytest-watch -- --cov
+
+run:
+		uv run python -m src

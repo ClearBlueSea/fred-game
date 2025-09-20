@@ -142,12 +142,6 @@ To run the 'FRED: Ocean Cleanup' project, follow these steps:
     python -m src
     ```
 
-### Running the development version
-
-```bash
-uv run python -m main
-```
-
 ---
 
 ## 🗺️ Development Roadmap (Next Phases)
